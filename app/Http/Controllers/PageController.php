@@ -18,21 +18,6 @@ class PageController extends Controller
 {
     // VIEWER
     public function getHome() {
-        if (!Session::has('userLoggedIn')) {
-            if (Session::has('rememberMe')) {
-                $user = Session::get('rememberMe');
-                Session::put('userLoggedIn', $user);
-                if ($this->search_($user, 'username') == 'admin') {
-                    return redirect('/admin/users');
-                }
-                else {
-                    $this->update_saldo();
-                    $this->set_profile();
-                    return redirect('/feed');
-                }
-            }
-        }
-
         $memberState = User::find(Session::get('userLoggedIn'))->membership ?? 0;
         return view('home', ['state' => $memberState]);
     }
@@ -42,35 +27,14 @@ class PageController extends Controller
     }
 
     public function getLogin() {
-        if (Session::has('userLoggedIn')) {
-            $user = Session::get('userLoggedIn');
-            if ($this->search_($user, 'username') == 'admin') {
-                return redirect('/admin/users');
-            }
-            else {
-                return redirect()->route('isLogged');
-            }
-        }
         return view('login');
     }
 
     public function getRegister() {
-        if (Session::has('userLoggedIn')) {
-            $user = Session::get('userLoggedIn');
-            if ($this->search_($user, 'username') == 'admin') {
-                return redirect('/admin/users');
-            }
-            else {
-                return redirect()->route('isLogged');
-            }
-        }
         return view('register');
     }
 
     public function getProfile() {
-        if (!Session::has('userLoggedIn')) {
-            return redirect('/login');
-        }
         $user = User::find(Session::get('userLoggedIn'));
         return view('profile', [
             'user' => $user
@@ -113,19 +77,21 @@ class PageController extends Controller
         ];
         $request->validate($rules, $messages);
 
-        // USER
         $auth = User::where('username', $request->username)->first();
         Session::put('userLoggedIn', $auth->id);
+
+        // ADMIN
+        if ($this->search_(Session::get('userLoggedIn'), 'username') == 'admin') {
+            Session::put('login_role', 'admin');
+            return redirect('/admin/users');
+        }
+        // USER
         if ($request->rememberme) {
             Session::put('rememberMe', $user[0]->id);
         }
         $this->update_saldo();
         $this->set_profile();
-
-        // ADMIN
-        if ($this->search_(Session::get('userLoggedIn'), 'username') == 'admin') {
-            return redirect('/admin/users');
-        }
+        Session::put('login_role', 'user');
 
         return redirect()->route('isLogged');
     }
@@ -134,6 +100,7 @@ class PageController extends Controller
         Session::forget('userLoggedIn');
         Session::forget('rememberMe');
         Session::forget('profile');
+        Session::forget('login_role');
         return redirect()->route("login");
     }
 

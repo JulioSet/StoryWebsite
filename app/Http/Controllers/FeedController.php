@@ -13,16 +13,6 @@ class FeedController extends Controller
 {
     // VIEW
     public function view() {
-        if (Session::has('userLoggedIn')) {
-            $user = Session::get('userLoggedIn');
-            if ($this->search_($user, 'username') == 'admin') {
-                return redirect('/admin/users');
-            }
-        }
-        else {
-            return redirect('/login');
-        }
-
         $bookmark = Bookmark::with('fromUser')->where('id_user', '=', Session::get('userLoggedIn'))->get();
         $listlike = Like::with('fromUser')->where('id_user', '=', Session::get('userLoggedIn'))->get();
         $feed = Feed::all();
@@ -59,29 +49,11 @@ class FeedController extends Controller
     }
 
     public function getCreate() {
-        if (Session::has('userLoggedIn')) {
-            $user = Session::get('userLoggedIn');
-            if ($this->search_($user, 'username') == 'admin') {
-                return redirect('/admin/users');
-            }
-        }
-        else {
-            return redirect('/login');
-        }
         return view('createstory');
     }
 
     public function getMyFeed() {
-        if (Session::has('userLoggedIn')) {
-            $user = Session::get('userLoggedIn');
-            if ($this->search_($user, 'username') == 'admin') {
-                return redirect('/admin/users');
-            }
-        }
-        else {
-            return redirect('/login');
-        }
-
+        $user = Session::get('userLoggedIn');
         $listFeed = Feed::with('fromUser')->where('writer', '=', $this->search_($user, 'username'))->get();
         return view('mystory', ['listFeed' => $listFeed]);
     }

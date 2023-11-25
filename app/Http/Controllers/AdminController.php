@@ -15,31 +15,11 @@ class AdminController extends Controller
 {
     // VIEW
     public function getUsers() {
-        if (Session::has('userLoggedIn')) {
-            $user = Session::get('userLoggedIn');
-            if ($this->search_($user, 'username') != 'admin') {
-                return redirect()->route('isLogged');
-            }
-        }
-        else {
-            return redirect('/login');
-        }
-
         $listUser = User::all();
         return view('admin.users', ['listUser' => $listUser]);
     }
 
     public function getFeeds() {
-        if (Session::has('userLoggedIn')) {
-            $user = Session::get('userLoggedIn');
-            if ($this->search_($user, 'username') != 'admin') {
-                return redirect()->route('isLogged');
-            }
-        }
-        else {
-            return redirect('/login');
-        }
-
         $listFeed = Feed::all();
         return view('admin.feeds', ['listFeed' => $listFeed]);
     }
@@ -69,6 +49,22 @@ class AdminController extends Controller
     }
 
     // PROCESSING REQUEST
+    public function lock($id)
+    {
+        $user = User::find($id);
+        $user->status = 0;
+        $user->save();
+        return redirect()->back();
+    }
+
+    public function unlock($id)
+    {
+        $user = User::find($id);
+        $user->status = 1;
+        $user->save();
+        return redirect()->back();
+    }
+
     public function editUser(Request $request) {
         $listUser = User::all();
         $rules = [];

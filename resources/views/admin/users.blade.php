@@ -13,6 +13,7 @@
             <th>Birthday</th>
             <th>Description</th>
             <th></th>
+            <th></th>
         </tr>
       </thead>
 
@@ -37,9 +38,16 @@
             <td>{{ $u->bod }}</td>
             <td>{{ $u->description }}</td>
             <td>
-               <button type="button" class="btn btn-danger" id="edit" data-bs-toggle="modal" data-bs-target="#exampleModal" data-id="{{ $u->id }}" data-title="{{ $u->title }}" data-username="{{ $u->username }}" data-email="{{ $u->email }}" data-password="{{ $u->password }}" data-gender="{{ $u->gender }}" data-bod="{{ $u->bod }}" data-description="{{ $u->description }}">
+               <button type="button" class="btn btn-primary" id="edit" data-bs-toggle="modal" data-bs-target="#exampleModal" data-id="{{ $u->id }}" data-title="{{ $u->title }}" data-username="{{ $u->username }}" data-email="{{ $u->email }}" data-password="{{ $u->password }}" data-gender="{{ $u->gender }}" data-bod="{{ $u->bod }}" data-description="{{ $u->description }}">
                   Edit
                </button>
+            </td>
+            <td>
+                @if ($u->status == 1)
+                <a href="/lock/{{ $u->id }}"><button type="button" class="btn btn-success"><i class="fa-solid fa-lock-open"></i></button></a>
+                @else
+                <a href="/unlock/{{ $u->id }}"><button type="button" class="btn btn-danger"><i class="fa-solid fa-lock"></i></button></a>
+                @endif
             </td>
          </tr>
          @endif
